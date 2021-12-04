@@ -1,35 +1,52 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace GttTimeTracker.Services
 {
     public static class GitProvider
     {
-        private const char DirectorySeparator = '\\';
         private const string GitDirectoryName = ".git";
+        private const string GitBinaryName = "git";
 
-        public static string? FindGitDirectory()
+        public static string? FindGitDirectory(DirectoryInfo directoryInfo)
         {
-            var directories = Directory.GetCurrentDirectory().Split(DirectorySeparator).ToList();
-
-            while (directories.Any())
+            foreach (var subfolderInfo in directoryInfo.GetDirectories())
             {
-                var possibleGitDirectory = string.Join(DirectorySeparator, directories) + DirectorySeparator + GitDirectoryName;
-                
-                if (Directory.Exists(possibleGitDirectory))
+                if (subfolderInfo.Name == GitDirectoryName)
                 {
-                    return possibleGitDirectory;
+                    return subfolderInfo.FullName;
                 }
-                
-                directories.RemoveAt(directories.Count - 1);
             }
 
-            return null;
+            var parent = directoryInfo.Parent;
+
+            return parent is not null
+                // ReSharper disable once TailRecursiveCall
+                ? FindGitDirectory(parent)
+                : null;
         }
 
-        public static string? FindGitBinary()
+        public static async Task<string?> FindGitBinaryAsync()
         {
-            return "git"; // TODO
+            ProcessStartInfo processStartInfo = new(GitBinaryName)
+            {
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                RedirectStandardError = true,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false
+            };
+
+            var process = new Process();
+            process.StartInfo = processStartInfo;
+            process.Start();
+            await process.WaitForExitAsync();
+
+            return process.ExitCode == 1
+                ? GitBinaryName
+                : null;
         }
     }
 }

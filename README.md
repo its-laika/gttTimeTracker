@@ -2,7 +2,7 @@
 Just a time tracking tool based on git branches
 
 ## Status
-Very very early WIP. More a writeup of what I intend to do.
+WIP
 
 ## What?!
 Here's the plan: 

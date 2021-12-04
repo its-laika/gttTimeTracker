@@ -1,27 +1,58 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
-using GttTimeTracker.Models;
+using System.Linq;
+using GttTimeTracker.Commands;
 using GttTimeTracker.Services;
 
 namespace GttTimeTracker
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private const string GttFileName = "gtt";
+
+        public static void Main(string[] args)
         {
-            Console.WriteLine(" - gtt time tracking tool - ");
-            Console.WriteLine("args: [" + string.Join(',', args) + "]");
-            Console.WriteLine("git dir:" + GitProvider.FindGitDirectory());
-            Console.WriteLine("cwd: " + Directory.GetCurrentDirectory());
+            var gitDir = GitProvider.FindGitDirectory(new DirectoryInfo(Directory.GetCurrentDirectory()));
+            var gitBinary = GitProvider.FindGitBinaryAsync().GetAwaiter().GetResult();
 
-            var gttFile = GitProvider.FindGitDirectory() + "/gtt";
-            var entryStorage = new EntryStorage(gttFile);
+            if (string.IsNullOrWhiteSpace(gitDir))
+            {
+                Console.Error.WriteLine("Fatal: Not in a git repository!");
+                return;
+            }
 
-            var entry = new TimeTrackingEntry("TEST-1234", DateTime.Now, null);
-            entryStorage.Write(entry).GetAwaiter().GetResult();
-            var storedEntries = entryStorage.LoadAll().GetAwaiter().GetResult();
+            if (string.IsNullOrWhiteSpace(gitBinary))
+            {
+                Console.Error.WriteLine("Fatal: Cannot find git binary!");
+                return;
+            }
 
-            Console.WriteLine(storedEntries);
+            IEntryStorage GetEntryInstance() =>
+                EntryStorage.GetInstanceAsync($"{gitDir}/{GttFileName}")
+                    .GetAwaiter()
+                    .GetResult();
+
+            ICommand command = (args.FirstOrDefault() ?? Help.Command) switch
+            {
+                Checkout.Command => new Checkout(GetEntryInstance()),
+                Help.Command => new Help(),
+                TaskOverview.Command => new TaskOverview(GetEntryInstance()),
+                Today.Command => new Today(GetEntryInstance()),
+                _ => new ForwardToGit()
+            };
+            var arguments = args
+                .Skip(1)
+                .ToList();
+
+            command.HandleAsync(arguments)
+                .GetAwaiter()
+                .GetResult();
+
+            if (command.ContinueToGit)
+            {
+                Process.Start(gitBinary, arguments);
+            }
         }
     }
 }
