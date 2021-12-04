@@ -10,7 +10,7 @@ namespace GttTimeTracker.Commands
         public const string Command = "help";
         public bool ContinueToGit => true;
 
-        public Task HandleAsync(IEnumerable<string> parameters)
+        public Task HandleAsync(IReadOnlyList<string> parameters)
         {
             if (parameters.Any())
             {
@@ -33,6 +33,15 @@ These are the available gtt commands:
 
    task <TASK>       Lists all times that the given task has been checked out, 
                      including an accumulation of all task times.
+
+   start [<TASK>]    Starts or resumes a task. If task is omitted, the last started or 
+                     checked out task will be 'resumed'. Otherwise time tracking for
+                     given task will be started.
+                     Hint: Make sure that there's no active task when starting or
+                     resuming a new task!
+
+   stop              Stops time tracking for current task.
+                     Hint: Make sure that there's an active task when stopping it.
 
    help              Shows this help and help page of git.
 

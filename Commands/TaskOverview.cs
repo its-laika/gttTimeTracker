@@ -19,12 +19,13 @@ namespace GttTimeTracker.Commands
             _entryStorage = entryStorage;
         }
 
-        public Task HandleAsync(IEnumerable<string> parameters)
+        public Task HandleAsync(IReadOnlyList<string> parameters)
         {
             var task = parameters.FirstOrDefault();
             if (string.IsNullOrWhiteSpace(task))
             {
-                Console.Error.WriteLine("Fatal: No task given. Call `gtt task <TASK>` for a given task.");
+                Console.Error.WriteLine("fatal: No task given.");
+                Console.WriteLine("usage: gtt task <TASK>");
                 return Task.CompletedTask;
             }
 
@@ -35,12 +36,12 @@ namespace GttTimeTracker.Commands
             foreach (var entry in entries)
             {
                 var end = entry.End?.ToString("u") ?? "now";
-                Console.WriteLine($"{entry.Task}: from {entry.Start:u} until {end}.");
+                Console.WriteLine($"{entry.Task}: from {entry.Start:u} until {end}");
             }
 
             var (totalHours, totalMinutes) = CalculateTotalHoursAndMinutes(entries);
             Console.WriteLine();
-            Console.WriteLine($"Total: {totalHours} hour(s) {totalMinutes} minute(s)");
+            Console.WriteLine($"total: {totalHours} hour(s) {totalMinutes} minute(s)");
 
             return Task.CompletedTask;
         }

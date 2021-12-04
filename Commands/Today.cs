@@ -19,7 +19,7 @@ namespace GttTimeTracker.Commands
             _entryStorage = entryStorage;
         }
 
-        public Task HandleAsync(IEnumerable<string> parameters)
+        public Task HandleAsync(IReadOnlyList<string> parameters)
         {
             var today = DateTime.Now.Date;
 
@@ -28,15 +28,15 @@ namespace GttTimeTracker.Commands
                 .ToList();
 
             Console.WriteLine();
-            Console.WriteLine("All Tasks:");
+            Console.WriteLine("tasks:");
             foreach (var entry in entries)
             {
                 var end = entry.End?.ToString("u") ?? "now";
-                Console.WriteLine($"{entry.Task}: from {entry.Start:u} until {end}.");
+                Console.WriteLine($"{entry.Task} from {entry.Start:u} until {end}");
             }
 
             Console.WriteLine();
-            Console.WriteLine("Accumulation:");
+            Console.WriteLine("accumulation:");
             foreach (var taskEntries in entries.GroupBy(e => e.Task))
             {
                 var (hours, minutes) = CalculateTotalHoursAndMinutes(taskEntries);
@@ -45,7 +45,7 @@ namespace GttTimeTracker.Commands
 
             var (totalHours, totalMinutes) = CalculateTotalHoursAndMinutes(entries);
             Console.WriteLine();
-            Console.WriteLine($"Total: {totalHours} hour(s) {totalMinutes} minute(s)");
+            Console.WriteLine($"total: {totalHours} hour(s) {totalMinutes} minute(s)");
 
             return Task.CompletedTask;
         }

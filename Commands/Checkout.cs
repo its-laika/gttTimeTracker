@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using GttTimeTracker.Models;
 using GttTimeTracker.Services;
 
-// ReSharper disable InvalidXmlDocComment
-
 namespace GttTimeTracker.Commands
 {
     public class Checkout : ICommand
@@ -36,6 +34,13 @@ namespace GttTimeTracker.Commands
         };
 
         /// <summary>
+        /// This parameter indicates a checkout for a single file / multiple files without
+        /// doing an actual checkout. Therefore, commands containing this parameter should
+        /// be ignored.
+        /// </summary>
+        private const string ParameterForSingleFileCheckout = "--";
+
+        /// <summary>
         /// Capturing group 1 contains the task identifier, e.g.
         /// "ABC-123" of "feature/ABC-123/some-stuff" or
         /// "DEF-456" of "feature/DEF-456-some-other-stuff"
@@ -49,8 +54,14 @@ namespace GttTimeTracker.Commands
             _entryStorage = entryStorage;
         }
 
-        public async Task HandleAsync(IEnumerable<string> parameters)
+        public async Task HandleAsync(IReadOnlyList<string> parameters)
         {
+            if (parameters.Contains(ParameterForSingleFileCheckout))
+            {
+                /* Not a real checkout. */
+                return;
+            }
+
             var targetBranch = parameters.FirstOrDefault(param => !_parametersToIgnore.Any(param.StartsWith));
 
             if (string.IsNullOrWhiteSpace(targetBranch))
@@ -61,8 +72,8 @@ namespace GttTimeTracker.Commands
             var taskIdentifierMatch = _taskIdentifierRegex.Match(targetBranch);
             if (!taskIdentifierMatch.Success)
             {
-                await Console.Error.WriteLineAsync(
-                    $"Fatal: Could not determine project from target '{targetBranch}'. Continuing to git.");
+                await Console.Error.WriteLineAsync($"fatal: Could not determine task from '{targetBranch}'.");
+                Console.WriteLine("hint: Forwarding command to git.");
                 return;
             }
 
@@ -72,24 +83,28 @@ namespace GttTimeTracker.Commands
                 .OrderBy(e => e.Start)
                 .LastOrDefault();
 
-            if (currentEntry is not null)
+            if (currentEntry is not null && currentEntry.End is null)
             {
                 if (currentEntry.Task == taskName)
                 {
+                    /* Current task = future task and still active. Nothing to do. */
                     return;
                 }
 
+                /* Current task != future task but still active. Stop current task and create new one later. */
                 currentEntry.End = DateTime.Now;
-                Console.WriteLine(
-                    $"Ending task {currentEntry.Task} from {currentEntry.Start:u} at {currentEntry.End:u}.");
             }
 
             var newEntry = new TimeTrackingEntry(taskName);
             _entryStorage.Add(newEntry);
-
-            Console.WriteLine($"Starting task {newEntry.Task} at {newEntry.Start:u}.");
-
             await _entryStorage.StoreAsync();
+
+            if (currentEntry is not null)
+            {
+                Console.WriteLine($"stopped: {currentEntry.Task} from {currentEntry.Start:u} at {currentEntry.End:u}");
+            }
+
+            Console.WriteLine($"started: {newEntry.Task} at {newEntry.Start:u}");
         }
     }
 }

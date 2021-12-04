@@ -4,7 +4,7 @@ namespace GttTimeTracker.Services
 {
     public static class GitProvider
     {
-        private const string GitDirectoryName = ".git";
+        public const string GitDirectoryName = ".git";
 
         public static string? FindGitDirectory(DirectoryInfo directoryInfo)
         {
@@ -19,7 +19,6 @@ namespace GttTimeTracker.Services
             var parent = directoryInfo.Parent;
 
             return parent is not null
-                // ReSharper disable once TailRecursiveCall
                 ? FindGitDirectory(parent)
                 : null;
         }

@@ -6,6 +6,6 @@ namespace GttTimeTracker.Commands
     public interface ICommand
     {
         bool ContinueToGit { get; }
-        Task HandleAsync(IEnumerable<string> parameters);
+        Task HandleAsync(IReadOnlyList<string> parameters);
     }
 }

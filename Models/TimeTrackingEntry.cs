@@ -1,8 +1,4 @@
 ﻿using System;
-// Necessary for JSON deserialization
-// ReSharper disable NotNullMemberIsNotInitialized
-// ReSharper disable UnusedMember.Global
-// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
 namespace GttTimeTracker.Models
 {

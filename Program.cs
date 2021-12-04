@@ -19,13 +19,15 @@ namespace GttTimeTracker
                 ICommand command = (args.FirstOrDefault() ?? Help.Command) switch
                     {
                         Checkout.Command => new Checkout(SetupEntryStorage()),
-                        Help.Command => new Help(),
+                        Start.Command => new Start(SetupEntryStorage()),
+                        Stop.Command => new Stop(SetupEntryStorage()),
                         TaskOverview.Command => new TaskOverview(SetupEntryStorage()),
                         Today.Command => new Today(SetupEntryStorage()),
+                        Help.Command => new Help(),
                         _ => new ForwardToGit()
                     };
 
-                command.HandleAsync(args.Skip(1))
+                command.HandleAsync(args.Skip(1).ToList())
                     .GetAwaiter()
                     .GetResult();
 
@@ -46,7 +48,7 @@ namespace GttTimeTracker
 
             if (string.IsNullOrWhiteSpace(gitDir))
             {
-                throw new Exception("Fatal: Not in a git repository!");
+                throw new Exception($"fatal: not a git repository (or any of the parent directories): {GitProvider.GitDirectoryName}");
             }
 
             return EntryStorage.GetInstanceAsync($"{gitDir}/{GttFileName}")
