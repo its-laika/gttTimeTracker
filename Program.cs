@@ -10,49 +10,48 @@ namespace GttTimeTracker
     internal static class Program
     {
         private const string GttFileName = "gtt";
+        private const string GitBinaryName = "git";
 
         public static void Main(string[] args)
         {
-            var gitDir = GitProvider.FindGitDirectory(new DirectoryInfo(Directory.GetCurrentDirectory()));
-            var gitBinary = GitProvider.FindGitBinaryAsync().GetAwaiter().GetResult();
-
-            if (string.IsNullOrWhiteSpace(gitDir))
+            try
             {
-                Console.Error.WriteLine("Fatal: Not in a git repository!");
-                return;
-            }
+                ICommand command = (args.FirstOrDefault() ?? Help.Command) switch
+                    {
+                        Checkout.Command => new Checkout(SetupEntryStorage()),
+                        Help.Command => new Help(),
+                        TaskOverview.Command => new TaskOverview(SetupEntryStorage()),
+                        Today.Command => new Today(SetupEntryStorage()),
+                        _ => new ForwardToGit()
+                    };
 
-            if (string.IsNullOrWhiteSpace(gitBinary))
-            {
-                Console.Error.WriteLine("Fatal: Cannot find git binary!");
-                return;
-            }
-
-            IEntryStorage GetEntryInstance() =>
-                EntryStorage.GetInstanceAsync($"{gitDir}/{GttFileName}")
+                command.HandleAsync(args.Skip(1))
                     .GetAwaiter()
                     .GetResult();
 
-            ICommand command = (args.FirstOrDefault() ?? Help.Command) switch
+                if (command.ContinueToGit)
+                {
+                    Process.Start(GitBinaryName, args).WaitForExit();
+                }
+            }
+            catch (Exception e)
             {
-                Checkout.Command => new Checkout(GetEntryInstance()),
-                Help.Command => new Help(),
-                TaskOverview.Command => new TaskOverview(GetEntryInstance()),
-                Today.Command => new Today(GetEntryInstance()),
-                _ => new ForwardToGit()
-            };
-            var arguments = args
-                .Skip(1)
-                .ToList();
+                Console.Error.WriteLine(e.Message);
+            }
+        }
 
-            command.HandleAsync(arguments)
+        private static IEntryStorage SetupEntryStorage()
+        {
+            var gitDir = GitProvider.FindGitDirectory(new DirectoryInfo(Directory.GetCurrentDirectory()));
+
+            if (string.IsNullOrWhiteSpace(gitDir))
+            {
+                throw new Exception("Fatal: Not in a git repository!");
+            }
+
+            return EntryStorage.GetInstanceAsync($"{gitDir}/{GttFileName}")
                 .GetAwaiter()
                 .GetResult();
-
-            if (command.ContinueToGit)
-            {
-                Process.Start(gitBinary, arguments);
-            }
         }
     }
 }
