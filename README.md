@@ -1,4 +1,4 @@
-﻿# gtt time tracker
+# gtt time tracker [![CodeQL](https://github.com/neon-JS/gttTimeTracker/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/neon-JS/gttTimeTracker/actions/workflows/codeql-analysis.yml)
 A simple time tracking tool based on git branches
 
 ## Status
@@ -40,6 +40,7 @@ Any other commands will be forwarded to git.
 ## Plans
 - Supporting multiple ways to identify tasks of branches
 - Testing, testing, testing...
+- Way to cleanup existing tasks (_cleanup \<OLDER-THAN-DAYS>_ etc?)
 
 ## License
 MIT
