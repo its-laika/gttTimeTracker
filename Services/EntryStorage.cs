@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace GttTimeTracker.Services
             _entries = entries;
         }
 
-        public static async Task<EntryStorage> GetInstanceAsync(string configPath)
+        public static async Task<EntryStorage> GetInstanceAsync(string configPath, uint entryCountWarningThreshold)
         {
             if (_instance is not null)
             {
@@ -35,6 +36,12 @@ namespace GttTimeTracker.Services
             var entries = !string.IsNullOrWhiteSpace(json)
                 ? JsonSerializer.Deserialize<List<TimeTrackingEntry>>(json) ?? new List<TimeTrackingEntry>()
                 : new List<TimeTrackingEntry>();
+
+            if (entries.Count > entryCountWarningThreshold) {
+                Console.WriteLine($"warning: Log currently contains {entries.Count} entries. This can slow down gtt.");
+                Console.WriteLine("         You can use `gtt cleanup` to remove outdated entries.");
+                Console.WriteLine("         Use `gtt help` for more information about `gtt cleanup`.");
+            }
 
             _instance = new EntryStorage(configPath, entries);
 

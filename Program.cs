@@ -11,6 +11,7 @@ namespace GttTimeTracker
     {
         private const string GttFileName = "gtt.json";
         private const string GitBinaryName = "git";
+        private const uint EntryCountWarningThreshold = 100;
 
         public static void Main(string[] args)
         {
@@ -52,7 +53,7 @@ namespace GttTimeTracker
                 throw new Exception($"fatal: not a git repository (or any of the parent directories): {GitProvider.GitDirectoryName}");
             }
 
-            return EntryStorage.GetInstanceAsync($"{gitDir}/{GttFileName}")
+            return EntryStorage.GetInstanceAsync($"{gitDir}/{GttFileName}", EntryCountWarningThreshold)
                 .GetAwaiter()
                 .GetResult();
         }
