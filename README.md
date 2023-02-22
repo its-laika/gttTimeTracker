@@ -1,9 +1,6 @@
 # gtt time tracker [![CodeQL](https://github.com/neon-JS/gttTimeTracker/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/neon-JS/gttTimeTracker/actions/workflows/codeql-analysis.yml)
 A simple time tracking tool based on git branches
 
-## Status
-Currently WIP and in testing phase by me (neon-js).
-
 ## Structure
 `gtt` is a CLI tool that intercepts git commands to track times for given tasks.
 Relevant commands will be forwarded to git after being handled by `gtt`. 
