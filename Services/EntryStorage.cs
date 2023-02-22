@@ -46,6 +46,13 @@ namespace GttTimeTracker.Services
             _entries.Add(entry);
         }
 
+        public void Remove(IEnumerable<TimeTrackingEntry> entries)
+        {
+            foreach(var entry in entries) {
+                _entries.Remove(entry);
+            }
+        }
+
         public async Task StoreAsync()
         {
             var json = JsonSerializer.Serialize(Entries, new JsonSerializerOptions {WriteIndented = true});

@@ -43,6 +43,10 @@ These are the available gtt commands:
    stop              Stops time tracking for current task.
                      Hint: Make sure that there's an active task when stopping it.
 
+   cleanup <DAYS>    Removes all entries that ended more than given days ago.
+                     Hint: Discards the time so that if you `cleanup 7` on 2023-02-22
+                     12:34, all entries are removed that ended before 2023-02-15 00:00.
+
    help              Shows this help and help page of git.
 
 Any other commands will be forwarded to git. 
@@ -56,7 +60,7 @@ It must be preceded by a slash (/) and followed by either a slash (/) or a minus
 does nothing except for forwarding the checkout to git. 
 
 ----
-Niklas Schmidt, 2021 
+Curly, 2021 - 2023
 Licensed under MIT
 ----
 Showing git help:

@@ -9,7 +9,7 @@ namespace GttTimeTracker
 {
     internal static class Program
     {
-        private const string GttFileName = "gtt";
+        private const string GttFileName = "gtt.json";
         private const string GitBinaryName = "git";
 
         public static void Main(string[] args)
@@ -19,6 +19,7 @@ namespace GttTimeTracker
                 ICommand command = (args.FirstOrDefault() ?? Help.Command) switch
                     {
                         Checkout.Command => new Checkout(SetupEntryStorage()),
+                        Cleanup.Command => new Cleanup(SetupEntryStorage()),
                         Start.Command => new Start(SetupEntryStorage()),
                         Stop.Command => new Stop(SetupEntryStorage()),
                         TaskOverview.Command => new TaskOverview(SetupEntryStorage()),

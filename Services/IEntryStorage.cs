@@ -8,6 +8,7 @@ namespace GttTimeTracker.Services
     {
         IEnumerable<TimeTrackingEntry> Entries { get; }
         void Add(TimeTrackingEntry entry);
+        void Remove(IEnumerable<TimeTrackingEntry> entries);
         Task StoreAsync();
     }
 }
