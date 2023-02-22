@@ -25,13 +25,13 @@ namespace GttTimeTracker.Commands
             if (string.IsNullOrWhiteSpace(remainingDaysParameter))
             {
                 Console.Error.WriteLine("fatal: No number of remaining days given.");
-                Console.WriteLine("usage: gtt task <DAYS>");
+                Console.WriteLine("usage: gtt cleanup <DAYS>");
                 return;
             }
 
             if (!byte.TryParse(remainingDaysParameter, out var remainingDays)) {
                 Console.Error.WriteLine("fatal: Given remaining days are not a positive number.");
-                Console.WriteLine("usage: gtt task <DAYS>");
+                Console.WriteLine("usage: gtt cleanup <DAYS>");
                 return;
             }
 
