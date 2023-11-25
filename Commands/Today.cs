@@ -13,16 +13,14 @@ public class Today(IEntryStorage entryStorage) : ICommand
            .Where(e => e.Start.Date == today)
            .ToList();
 
-        Console.WriteLine();
-        Console.WriteLine("tasks:");
+        Console.WriteLine("\ntasks:");
         foreach (var entry in entries)
         {
             var end = entry.End?.ToString("u") ?? "now";
             Console.WriteLine($"{entry.Task} from {entry.Start:u} until {end}");
         }
 
-        Console.WriteLine();
-        Console.WriteLine("accumulation:");
+        Console.WriteLine("\naccumulation:");
         foreach (var taskEntries in entries.GroupBy(e => e.Task))
         {
             var (hours, minutes) = CalculateTotalHoursAndMinutes(taskEntries);
@@ -30,8 +28,7 @@ public class Today(IEntryStorage entryStorage) : ICommand
         }
 
         var (totalHours, totalMinutes) = CalculateTotalHoursAndMinutes(entries);
-        Console.WriteLine();
-        Console.WriteLine($"total: {totalHours} hour(s) {totalMinutes} minute(s)");
+        Console.WriteLine($"\ntotal: {totalHours} hour(s) {totalMinutes} minute(s)");
 
         return Task.CompletedTask;
     }

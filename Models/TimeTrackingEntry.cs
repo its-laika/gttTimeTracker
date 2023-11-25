@@ -1,22 +1,8 @@
 ﻿namespace GttTimeTracker.Models;
 
-public class TimeTrackingEntry
+public class TimeTrackingEntry(string task, DateTime start, DateTime? end = null)
 {
-    public string Task { get; set; }
-    public DateTime Start { get; set; }
-    public DateTime? End { get; set; }
-
-    public TimeTrackingEntry(string task, DateTime? start = null, DateTime? end = null)
-    {
-        Task = task;
-        Start = start ?? DateTime.Now;
-        End = end;
-    }
-
-
-#nullable disable
-    public TimeTrackingEntry()
-    {
-    }
-#nullable enable
+    public string Task { get; } = task;
+    public DateTime Start { get; } = start;
+    public DateTime? End { get; set; } = end;
 }

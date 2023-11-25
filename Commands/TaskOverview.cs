@@ -7,11 +7,17 @@ public class TaskOverview(IEntryStorage entryStorage) : ICommand
 
     public Task HandleAsync(IReadOnlyList<string> parameters)
     {
-        var task = parameters.FirstOrDefault();
-        if (string.IsNullOrWhiteSpace(task))
+        if (
+            parameters is not [var task]
+            || string.IsNullOrWhiteSpace(task)
+        )
         {
-            Console.Error.WriteLine("fatal: No task given.");
-            Console.WriteLine("usage: gtt task <TASK>");
+            Console.Error.WriteLine(
+                """
+                fatal: No task given.
+                usage: gtt task <TASK>
+                """
+            );
             return Task.CompletedTask;
         }
 
@@ -26,8 +32,7 @@ public class TaskOverview(IEntryStorage entryStorage) : ICommand
         }
 
         var (totalHours, totalMinutes) = CalculateTotalHoursAndMinutes(entries);
-        Console.WriteLine();
-        Console.WriteLine($"total: {totalHours} hour(s) {totalMinutes} minute(s)");
+        Console.WriteLine($"\ntotal: {totalHours} hour(s) {totalMinutes} minute(s)");
 
         return Task.CompletedTask;
     }

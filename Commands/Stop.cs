@@ -9,7 +9,7 @@ public class Stop(IEntryStorage entryStorage) : ICommand
     {
         var currentEntry = entryStorage.Entries.MaxBy(t => t.Start);
 
-        if (currentEntry is null || currentEntry.End is not null)
+        if (currentEntry is not { End: null })
         {
             await Console.Error.WriteLineAsync("fatal: There is no active task.");
             return;

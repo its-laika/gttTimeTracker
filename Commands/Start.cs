@@ -9,7 +9,7 @@ public class Start(IEntryStorage entryStorage) : ICommand
     {
         var lastEntry = entryStorage.Entries.MaxBy(t => t.Start);
 
-        if (lastEntry is not null && lastEntry.End is null)
+        if (lastEntry is { End: null })
         {
             await Console.Error.WriteLineAsync("fatal: There is an active task.");
             return;
@@ -18,13 +18,18 @@ public class Start(IEntryStorage entryStorage) : ICommand
         var taskName = parameters.FirstOrDefault() ?? lastEntry?.Task;
         if (taskName is null)
         {
-            await Console.Error.WriteLineAsync("fatal: No task specified and no task to resume.");
-            await Console.Error.WriteLineAsync("usage: gtt start [<TASK>]");
-            await Console.Error.WriteLineAsync("       Task can only be omitted if there's an existing task to resume.");
+            await Console.Error.WriteLineAsync(
+                """
+                fatal: No task specified and no task to resume.
+                usage: gtt start [<TASK>]
+                       Task can only be omitted if there's an existing task to resume.
+                """
+            );
             return;
         }
 
-        var entry = new TimeTrackingEntry(taskName);
+        var entry = new TimeTrackingEntry(taskName, DateTime.Now);
+
         entryStorage.Add(entry);
         await entryStorage.StoreAsync();
 

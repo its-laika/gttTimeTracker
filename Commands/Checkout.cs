@@ -1,6 +1,6 @@
 namespace GttTimeTracker.Commands;
 
-public class Checkout(IEntryStorage entryStorage) : ICommand
+public partial class Checkout(IEntryStorage entryStorage) : ICommand
 {
     public const string COMMAND = "checkout";
     public bool ContinueToGit => true;
@@ -37,7 +37,8 @@ public class Checkout(IEntryStorage entryStorage) : ICommand
     /// "ABC-123" of "feature/ABC-123/some-stuff" or
     /// "DEF-456" of "feature/DEF-456-some-other-stuff"
     /// </summary>
-    private readonly Regex _taskIdentifierRegex = new(@"\/([A-Z]+-\d+)[\/-]");
+    [GeneratedRegex(@"\/([A-Z]+-\d+)[\/-]")]
+    private static partial Regex TaskIdentifierRegex();
 
     public async Task HandleAsync(IReadOnlyList<string> parameters)
     {
@@ -47,26 +48,34 @@ public class Checkout(IEntryStorage entryStorage) : ICommand
             return;
         }
 
-        var targetBranch = parameters.FirstOrDefault(param => !_parametersToIgnore.Any(param.StartsWith));
+        var targetBranch = parameters.FirstOrDefault(
+            param => !_parametersToIgnore.Any(param.StartsWith)
+        );
 
         if (string.IsNullOrWhiteSpace(targetBranch))
         {
             return;
         }
 
-        var taskIdentifierMatch = _taskIdentifierRegex.Match(targetBranch);
-        if (!taskIdentifierMatch.Success)
+        if (
+            TaskIdentifierRegex().Match(targetBranch) is not
+            {
+                Success: true,
+                Groups:
+                [
+                    not null,
+                    { Value: var taskName }
+                ]
+            }
+        )
         {
             await Console.Error.WriteLineAsync($"fatal: Could not determine task from '{targetBranch}'.");
-            Console.WriteLine("hint: Forwarding command to git.");
             return;
         }
 
-        var taskName = taskIdentifierMatch.Groups[1].Value;
-
         var currentEntry = entryStorage.Entries.MaxBy(e => e.Start);
 
-        if (currentEntry is not null && currentEntry.End is null)
+        if (currentEntry is { End: null })
         {
             if (currentEntry.Task == taskName)
             {
@@ -78,7 +87,8 @@ public class Checkout(IEntryStorage entryStorage) : ICommand
             currentEntry.End = DateTime.Now;
         }
 
-        var newEntry = new TimeTrackingEntry(taskName);
+        var newEntry = new TimeTrackingEntry(taskName, DateTime.Now);
+
         entryStorage.Add(newEntry);
         await entryStorage.StoreAsync();
 

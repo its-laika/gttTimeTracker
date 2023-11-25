@@ -26,10 +26,13 @@ internal static class Program
                .GetAwaiter()
                .GetResult();
 
-            if (command.ContinueToGit)
+            if (!command.ContinueToGit)
             {
-                Process.Start(_GIT_BINARY_NAME, args).WaitForExit();
+                return;
             }
+
+            Console.WriteLine("hint: Forwarding command to git.");
+            Process.Start(_GIT_BINARY_NAME, args).WaitForExit();
         }
         catch (Exception e)
         {
@@ -44,7 +47,8 @@ internal static class Program
         if (string.IsNullOrWhiteSpace(gitDir))
         {
             throw new Exception(
-                $"fatal: not a git repository (or any of the parent directories): {GitProvider.GIT_DIRECTORY_NAME}");
+                $"fatal: not a git repository (or any of the parent directories): {GitProvider.GIT_DIRECTORY_NAME}"
+            );
         }
 
         return EntryStorage.GetInstanceAsync($"{gitDir}/{_GTT_FILE_NAME}", _ENTRY_COUNT_WARNING_THRESHOLD)

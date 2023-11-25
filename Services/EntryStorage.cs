@@ -30,10 +30,15 @@ public class EntryStorage : IEntryStorage
             ? JsonSerializer.Deserialize<List<TimeTrackingEntry>>(json) ?? new List<TimeTrackingEntry>()
             : new List<TimeTrackingEntry>();
 
-        if (entries.Count > entryCountWarningThreshold) {
-            Console.WriteLine($"warning: Log currently contains {entries.Count} entries. This can slow down gtt.");
-            Console.WriteLine("         You can use `gtt cleanup` to remove outdated entries.");
-            Console.WriteLine("         Use `gtt help` for more information about `gtt cleanup`.");
+        if (entries.Count > entryCountWarningThreshold)
+        {
+            Console.WriteLine(
+                $"""
+                 warning: Log currently contains {entries.Count} entries. This can slow down gtt.
+                          You can use `gtt cleanup` to remove outdated entries.
+                          Use `gtt help` for more information about `gtt cleanup`.
+                 """
+            );
         }
 
         _instance = new EntryStorage(configPath, entries);
@@ -48,14 +53,15 @@ public class EntryStorage : IEntryStorage
 
     public void Remove(IEnumerable<TimeTrackingEntry> entries)
     {
-        foreach(var entry in entries) {
+        foreach (var entry in entries)
+        {
             _entries.Remove(entry);
         }
     }
 
     public async Task StoreAsync()
     {
-        var json = JsonSerializer.Serialize(Entries, new JsonSerializerOptions {WriteIndented = true});
+        var json = JsonSerializer.Serialize(Entries, new JsonSerializerOptions { WriteIndented = true });
 
         await using var fileStream = File.Open(_configPath, FileMode.Create);
         await using var streamWriter = new StreamWriter(fileStream);
