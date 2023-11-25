@@ -1,26 +1,23 @@
-﻿using System.IO;
+﻿namespace GttTimeTracker.Services;
 
-namespace GttTimeTracker.Services
+public static class GitProvider
 {
-    public static class GitProvider
+    public const string GIT_DIRECTORY_NAME = ".git";
+
+    public static string? FindGitDirectory(DirectoryInfo directoryInfo)
     {
-        public const string GitDirectoryName = ".git";
-
-        public static string? FindGitDirectory(DirectoryInfo directoryInfo)
+        foreach (var subfolderInfo in directoryInfo.GetDirectories())
         {
-            foreach (var subfolderInfo in directoryInfo.GetDirectories())
+            if (subfolderInfo.Name == GIT_DIRECTORY_NAME)
             {
-                if (subfolderInfo.Name == GitDirectoryName)
-                {
-                    return subfolderInfo.FullName;
-                }
+                return subfolderInfo.FullName;
             }
-
-            var parent = directoryInfo.Parent;
-
-            return parent is not null
-                ? FindGitDirectory(parent)
-                : null;
         }
+
+        var parent = directoryInfo.Parent;
+
+        return parent is not null
+            ? FindGitDirectory(parent)
+            : null;
     }
 }

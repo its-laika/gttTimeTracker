@@ -1,48 +1,37 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using GttTimeTracker.Services;
+namespace GttTimeTracker.Commands;
 
-namespace GttTimeTracker.Commands
+public class Cleanup(IEntryStorage entryStorage) : ICommand
 {
-    public class Cleanup : ICommand
+    public const string COMMAND = "cleanup";
+    public bool ContinueToGit => false;
+
+    public async Task HandleAsync(IReadOnlyList<string> parameters)
     {
-        public const string Command = "cleanup";
-        public bool ContinueToGit => false;
+        var remainingDaysParameter = parameters.FirstOrDefault();
 
-        private readonly IEntryStorage _entryStorage;
-
-        public Cleanup(IEntryStorage entryStorage)
+        if (string.IsNullOrWhiteSpace(remainingDaysParameter))
         {
-            _entryStorage = entryStorage;
+            await Console.Error.WriteLineAsync("fatal: No number of remaining days given.");
+            Console.WriteLine("usage: gtt cleanup <DAYS>");
+            return;
         }
 
-        public async Task HandleAsync(IReadOnlyList<string> parameters)
+        if (!byte.TryParse(remainingDaysParameter, out var remainingDays))
         {
-            var remainingDaysParameter = parameters.FirstOrDefault();
-
-            if (string.IsNullOrWhiteSpace(remainingDaysParameter))
-            {
-                Console.Error.WriteLine("fatal: No number of remaining days given.");
-                Console.WriteLine("usage: gtt cleanup <DAYS>");
-                return;
-            }
-
-            if (!byte.TryParse(remainingDaysParameter, out var remainingDays)) {
-                Console.Error.WriteLine("fatal: Given remaining days are not a positive number.");
-                Console.WriteLine("usage: gtt cleanup <DAYS>");
-                return;
-            }
-
-            var threshold = DateTime.Now.Date.AddDays(remainingDays * -1);
-            var outdatedEntries = _entryStorage.Entries.Where(e => e.End < threshold).ToList();
-
-            _entryStorage.Remove(outdatedEntries);
-
-            await _entryStorage.StoreAsync();
-
-            Console.WriteLine($"removed: All tasks older than {remainingDays} days.");
+            await Console.Error.WriteLineAsync("fatal: Given remaining days are not a positive number.");
+            Console.WriteLine("usage: gtt cleanup <DAYS>");
+            return;
         }
+
+        var threshold = DateTime.Now.Date.AddDays(remainingDays * -1);
+        var outdatedEntries = entryStorage.Entries
+           .Where(e => e.End < threshold)
+           .ToList();
+
+        entryStorage.Remove(outdatedEntries);
+
+        await entryStorage.StoreAsync();
+
+        Console.WriteLine($"removed: All tasks older than {remainingDays} days.");
     }
 }

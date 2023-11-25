@@ -1,38 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using GttTimeTracker.Services;
+namespace GttTimeTracker.Commands;
 
-namespace GttTimeTracker.Commands
+public class Stop(IEntryStorage entryStorage) : ICommand
 {
-    public class Stop : ICommand
+    public const string COMMAND = "stop";
+    public bool ContinueToGit => false;
+
+    public async Task HandleAsync(IReadOnlyList<string> parameters)
     {
-        public const string Command = "stop";
-        public bool ContinueToGit => false;
+        var currentEntry = entryStorage.Entries.MaxBy(t => t.Start);
 
-        private readonly IEntryStorage _entryStorage;
-
-        public Stop(IEntryStorage entryStorage)
+        if (currentEntry is null || currentEntry.End is not null)
         {
-            _entryStorage = entryStorage;
+            await Console.Error.WriteLineAsync("fatal: There is no active task.");
+            return;
         }
 
-        public async Task HandleAsync(IReadOnlyList<string> parameters)
-        {
-            var currentEntry = _entryStorage.Entries
-                .OrderBy(t => t.Start)
-                .LastOrDefault();
+        currentEntry.End = DateTime.Now;
+        await entryStorage.StoreAsync();
 
-            if (currentEntry is null || currentEntry.End is not null) {
-                await Console.Error.WriteLineAsync("fatal: There is no active task.");
-                return;
-            }
-            
-            currentEntry.End = DateTime.Now;
-            await _entryStorage.StoreAsync();
-
-            Console.WriteLine($"stopped: {currentEntry.Task} from {currentEntry.Start:u} until {currentEntry.End:u}");
-        }
+        Console.WriteLine($"stopped: {currentEntry.Task} from {currentEntry.Start:u} until {currentEntry.End:u}");
     }
 }

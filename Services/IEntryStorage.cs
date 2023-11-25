@@ -1,14 +1,9 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using GttTimeTracker.Models;
+namespace GttTimeTracker.Services;
 
-namespace GttTimeTracker.Services
+public interface IEntryStorage
 {
-    public interface IEntryStorage
-    {
-        IEnumerable<TimeTrackingEntry> Entries { get; }
-        void Add(TimeTrackingEntry entry);
-        void Remove(IEnumerable<TimeTrackingEntry> entries);
-        Task StoreAsync();
-    }
+    IEnumerable<TimeTrackingEntry> Entries { get; }
+    void Add(TimeTrackingEntry entry);
+    void Remove(IEnumerable<TimeTrackingEntry> entries);
+    Task StoreAsync();
 }

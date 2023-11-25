@@ -1,11 +1,7 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
+namespace GttTimeTracker.Commands;
 
-namespace GttTimeTracker.Commands
+public interface ICommand
 {
-    public interface ICommand
-    {
-        bool ContinueToGit { get; }
-        Task HandleAsync(IReadOnlyList<string> parameters);
-    }
+    bool ContinueToGit { get; }
+    Task HandleAsync(IReadOnlyList<string> parameters);
 }

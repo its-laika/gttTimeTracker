@@ -1,24 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+namespace GttTimeTracker.Commands;
 
-namespace GttTimeTracker.Commands
+public class Help : ICommand
 {
-    public class Help : ICommand
+    public const string COMMAND = "help";
+    public bool ContinueToGit => true;
+
+    public Task HandleAsync(IReadOnlyList<string> parameters)
     {
-        public const string Command = "help";
-        public bool ContinueToGit => true;
-
-        public Task HandleAsync(IReadOnlyList<string> parameters)
+        if (parameters.Any())
         {
-            if (parameters.Any())
-            {
-                /* User probably asks for git help. */
-                return Task.CompletedTask;
-            }
+            /* User probably asks for git help. */
+            return Task.CompletedTask;
+        }
 
-            const string help = @"
+        const string help = @"
 gtt time tracker
 usage: gtt <command> [<args>]
 
@@ -65,9 +60,8 @@ Licensed under MIT
 ----
 Showing git help:
 ";
-            Console.WriteLine(help);
+        Console.WriteLine(help);
 
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }

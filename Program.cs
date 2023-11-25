@@ -1,61 +1,54 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using GttTimeTracker.Commands;
-using GttTimeTracker.Services;
+﻿namespace GttTimeTracker;
 
-namespace GttTimeTracker
+internal static class Program
 {
-    internal static class Program
+    private const string _GTT_FILE_NAME = "gtt.json";
+    private const string _GIT_BINARY_NAME = "git";
+    private const uint _ENTRY_COUNT_WARNING_THRESHOLD = 100;
+
+    public static void Main(string[] args)
     {
-        private const string GttFileName = "gtt.json";
-        private const string GitBinaryName = "git";
-        private const uint EntryCountWarningThreshold = 100;
-
-        public static void Main(string[] args)
+        try
         {
-            try
+            ICommand command = (args.FirstOrDefault() ?? Help.COMMAND) switch
             {
-                ICommand command = (args.FirstOrDefault() ?? Help.Command) switch
-                    {
-                        Checkout.Command => new Checkout(SetupEntryStorage()),
-                        Cleanup.Command => new Cleanup(SetupEntryStorage()),
-                        Start.Command => new Start(SetupEntryStorage()),
-                        Stop.Command => new Stop(SetupEntryStorage()),
-                        TaskOverview.Command => new TaskOverview(SetupEntryStorage()),
-                        Today.Command => new Today(SetupEntryStorage()),
-                        Help.Command => new Help(),
-                        _ => new ForwardToGit()
-                    };
+                Checkout.COMMAND => new Checkout(SetupEntryStorage()),
+                Cleanup.COMMAND => new Cleanup(SetupEntryStorage()),
+                Start.COMMAND => new Start(SetupEntryStorage()),
+                Stop.COMMAND => new Stop(SetupEntryStorage()),
+                TaskOverview.COMMAND => new TaskOverview(SetupEntryStorage()),
+                Today.COMMAND => new Today(SetupEntryStorage()),
+                Help.COMMAND => new Help(),
+                _ => new ForwardToGit()
+            };
 
-                command.HandleAsync(args.Skip(1).ToList())
-                    .GetAwaiter()
-                    .GetResult();
+            command.HandleAsync(args.Skip(1).ToList())
+               .GetAwaiter()
+               .GetResult();
 
-                if (command.ContinueToGit)
-                {
-                    Process.Start(GitBinaryName, args).WaitForExit();
-                }
-            }
-            catch (Exception e)
+            if (command.ContinueToGit)
             {
-                Console.Error.WriteLine(e.Message);
+                Process.Start(_GIT_BINARY_NAME, args).WaitForExit();
             }
         }
-
-        private static IEntryStorage SetupEntryStorage()
+        catch (Exception e)
         {
-            var gitDir = GitProvider.FindGitDirectory(new DirectoryInfo(Directory.GetCurrentDirectory()));
-
-            if (string.IsNullOrWhiteSpace(gitDir))
-            {
-                throw new Exception($"fatal: not a git repository (or any of the parent directories): {GitProvider.GitDirectoryName}");
-            }
-
-            return EntryStorage.GetInstanceAsync($"{gitDir}/{GttFileName}", EntryCountWarningThreshold)
-                .GetAwaiter()
-                .GetResult();
+            Console.Error.WriteLine(e.Message);
         }
+    }
+
+    private static IEntryStorage SetupEntryStorage()
+    {
+        var gitDir = GitProvider.FindGitDirectory(new DirectoryInfo(Directory.GetCurrentDirectory()));
+
+        if (string.IsNullOrWhiteSpace(gitDir))
+        {
+            throw new Exception(
+                $"fatal: not a git repository (or any of the parent directories): {GitProvider.GIT_DIRECTORY_NAME}");
+        }
+
+        return EntryStorage.GetInstanceAsync($"{gitDir}/{_GTT_FILE_NAME}", _ENTRY_COUNT_WARNING_THRESHOLD)
+           .GetAwaiter()
+           .GetResult();
     }
 }
