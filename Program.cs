@@ -16,6 +16,7 @@ internal static class Program
                 Cleanup.COMMAND => new Cleanup(SetupEntryStorage()),
                 Start.COMMAND => new Start(SetupEntryStorage()),
                 Stop.COMMAND => new Stop(SetupEntryStorage()),
+                Tasks.COMMAND => new Tasks(SetupEntryStorage()),
                 TaskOverview.COMMAND => new TaskOverview(SetupEntryStorage()),
                 Today.COMMAND => new Today(SetupEntryStorage()),
                 Help.COMMAND => new Help(),

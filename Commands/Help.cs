@@ -26,6 +26,8 @@ public class Help : ICommand
             
                today             Lists all tasks of today, including an accumulation of today's
                                  tasks and their total time.
+                                 
+               tasks             Lists all tasks, including an accumulation of their total time.
             
                task <TASK>       Lists all times that the given task has been checked out,
                                  including an accumulation of all task times.
@@ -56,7 +58,7 @@ public class Help : ICommand
             does nothing except for forwarding the checkout to git.
 
             ----
-            Curly, 2021 - 2023
+            Curly, 2021 - 2024
             Licensed under MIT
             ----
 

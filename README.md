@@ -18,6 +18,8 @@ These are the available `gtt` commands:
   checkout to git. 
 - _today_  
   Lists all tasks of today, including an accumulation of today's tasks and their total time.
+- _tasks_  
+  Lists all tasks, including an accumulation of their total time.
 - _task \<TASK>_  
   Lists all times that the given task has been checked out, including an accumulation of all 
   task times.
