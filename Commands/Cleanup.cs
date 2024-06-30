@@ -42,6 +42,6 @@ public class Cleanup(IEntryStorage entryStorage) : ICommand
 
         await entryStorage.StoreAsync();
 
-        Console.WriteLine($"removed: All tasks older than {remainingDays} days.");
+        Console.WriteLine($"removed all tasks older than {remainingDays} days.");
     }
 }

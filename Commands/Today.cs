@@ -13,28 +13,38 @@ public class Today(IEntryStorage entryStorage) : ICommand
            .Where(e => e.Start.Date == today)
            .ToList();
 
-        Console.WriteLine("\ntasks:");
-        foreach (var entry in entries)
+        Console.WriteLine();
+
+        if (entries.Count == 0)
         {
-            var end = entry.End?.ToString("u") ?? "now";
-            Console.WriteLine($"{entry.Task} from {entry.Start:u} until {end}");
+            Console.WriteLine("no tasks");
+            return Task.CompletedTask;
         }
 
-        Console.WriteLine("\naccumulation:");
+        Console.WriteLine("tasks:");
+        foreach (var entry in entries)
+        {
+            var end = entry.End?.ToString("hh:mm:ss") ?? "now";
+            Console.WriteLine($"{entry.Task,-15} from {entry.Start:hh:mm:ss} until {end}");
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("accumulation:");
         foreach (var taskEntries in entries.GroupBy(e => e.Task))
         {
             var (hours, minutes) = taskEntries
                .Sum(e => e.GetTotalMinutes())
                .ToHoursAndMinutes();
 
-            Console.WriteLine($"{taskEntries.Key}: {hours} hour(s) {minutes} minute(s)");
+            Console.WriteLine($"{taskEntries.Key,-15} {hours,3} hour(s) {minutes,2} minute(s)");
         }
 
         var (totalHours, totalMinutes) = entries
            .Sum(e => e.GetTotalMinutes())
            .ToHoursAndMinutes();
 
-        Console.WriteLine($"\ntotal: {totalHours} hour(s) {totalMinutes} minute(s)");
+        Console.WriteLine();
+        Console.WriteLine($"total: {totalHours} hour(s) {totalMinutes} minute(s)");
 
         return Task.CompletedTask;
     }

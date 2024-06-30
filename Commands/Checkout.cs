@@ -94,9 +94,9 @@ public partial class Checkout(IEntryStorage entryStorage) : ICommand
 
         if (currentEntry is not null)
         {
-            Console.WriteLine($"stopped: {currentEntry.Task} from {currentEntry.Start:u} at {currentEntry.End:u}");
+            Console.WriteLine($"stopped: {currentEntry.Task,-15} from {currentEntry.Start:u} until {currentEntry.End:u}");
         }
 
-        Console.WriteLine($"started: {newEntry.Task} at {newEntry.Start:u}");
+        Console.WriteLine($"started: {newEntry.Task,-15} at {newEntry.Start:u}");
     }
 }
