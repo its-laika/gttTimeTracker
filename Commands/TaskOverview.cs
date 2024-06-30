@@ -31,19 +31,12 @@ public class TaskOverview(IEntryStorage entryStorage) : ICommand
             Console.WriteLine($"{entry.Task}: from {entry.Start:u} until {end}");
         }
 
-        var (totalHours, totalMinutes) = CalculateTotalHoursAndMinutes(entries);
+        var (totalHours, totalMinutes) = entries
+           .Sum(e => e.GetTotalMinutes())
+           .ToHoursAndMinutes();
+
         Console.WriteLine($"\ntotal: {totalHours} hour(s) {totalMinutes} minute(s)");
 
         return Task.CompletedTask;
-    }
-
-    private static (int, int) CalculateTotalHoursAndMinutes(IEnumerable<TimeTrackingEntry> entries)
-    {
-        var totalTaskMinutes = (int)entries
-           .Select(t => (t.End ?? DateTime.Now) - t.Start)
-           .Select(timespan => timespan.TotalMinutes)
-           .Sum();
-
-        return (totalTaskMinutes / 60, totalTaskMinutes % 60);
     }
 }
