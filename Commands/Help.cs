@@ -58,9 +58,6 @@ public class Help : ICommand
             does nothing except for forwarding the checkout to git.
 
             ----
-            Curly, 2021 - 2024
-            Licensed under MIT
-            ----
 
             """
         );
