@@ -1,9 +1,9 @@
 name: "CodeQL"
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   schedule:
-    - cron: '0 0 * * 1'
+    - cron: "0 0 * * 1"
 jobs:
   analyze:
     name: Analyze
@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'csharp' ]
+        language: ["csharp"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -23,7 +23,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 8
+          dotnet-version: 9
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
