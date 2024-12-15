@@ -1,4 +1,7 @@
-﻿# gtt time tracker
+> [!WARNING]  
+> This project has been archived as I don't use it anymore.
+ 
+# gtt time tracker
 A simple time tracking tool based on git branches
 
 ## Structure
